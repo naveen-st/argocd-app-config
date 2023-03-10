@@ -1,0 +1,34 @@
+# Check if apiVersion is updated / changed
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp-argo-application
+  namespace: argocd
+spec:
+  # The project the application belongs to.
+  # if unspecified, then it is default
+  project: default
+
+  # git repo to pull/sync application config
+  source:
+    repoURL: https://github.com/naveen-st/argocd-app-config.git # Can point to either a Helm chart repo or a git repo.
+    # HEAD = always the last commit
+    targetRevision: HEAD
+    # sync or track the specific path in the repo. In our case we need to sync the 'dev' path
+    path: dev
+
+# Cluster where argo cd will apply the actions
+  destination: 
+    # address of k8s cluster. In our case ArgoCD is deployed in the same cluster.
+    # https://kubernetes.default.svc is internal dns name for api server
+    server: https://kubernetes.default.svc 
+    # name to apply the configs
+    namespace: myapp
+
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true # Namespace Auto-Creation ensures that namespace specified as the application destination exists in the destination cluster.
+      
+    automated: # automated sync by default retries failed attempts 5 times with following delays between attempts ( 5s, 10s, 20s, 40s, 80s ); retry controlled using `retry` field.
+      selfHeal: true # Specifies if partial app sync should be executed when resources are changed only in target Kubernetes cluster and no git change detected ( false by default ).
+      prune: true # Specifies if resources should be pruned during auto-syncing
