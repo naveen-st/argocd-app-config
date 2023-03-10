@@ -10,10 +10,10 @@ spec:
   template:
     metadata:
       labels:
-        app: myapp
+        app: myapp-test
     spec:
       containers:
-      - name: myapp
+      - name: myapp-test
         image: nanajanashia/argocd-app:1.0
         ports:
         - containerPort: 8080
